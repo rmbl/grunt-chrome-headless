@@ -30,6 +30,9 @@ module.exports = function(grunt) {
 
     // Configuration to be run (and then tested).
     chrome_headless: {
+      options: {
+        args: ['--disable-gpu']
+      },
       default_options: {
       },
       custom_options: {
