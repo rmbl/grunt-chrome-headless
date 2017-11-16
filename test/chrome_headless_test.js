@@ -30,27 +30,18 @@ exports.chrome_headless = {
   default_options: function(test) {
     test.expect(1);
 
-    CDP(function (client) {
-      var Page = client.Page;
-      Page.loadEventFired(function (e) {
-        test.ok(e);
-        test.done();        
-      });
-      
-      Page.enable().then(function () {
-        return Page.navigate({url: 'https://google.com'});
-      }).catch(function (err) {
-        test.ifError(err);
-        test.done();
-      });
+    CDP.Protocol({port: 9222}, function (err, protocol) {
+      test.ifError(err);
+      test.done();
     });
   },
   custom_options: function(test) {
     test.expect(1);
 
-    CDP({port: 12345}, function (client) {
+    CDP({port: 9999}, function (client) {
       var Page = client.Page;
       Page.loadEventFired(function (e) {
+        client.close();
         test.ok(e);
         test.done();        
       });
@@ -61,6 +52,9 @@ exports.chrome_headless = {
         test.ifError(err);
         test.done();
       });
+    }).on('error', function (err) {
+      test.ifError(err);
+      test.done();
     });
   },
 };

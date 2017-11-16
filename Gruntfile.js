@@ -34,7 +34,7 @@ module.exports = function(grunt) {
       },
       custom_options: {
         options: {
-          port: 12345
+          port: 9999
         }
       }
     },

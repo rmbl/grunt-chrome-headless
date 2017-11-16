@@ -36,14 +36,35 @@ module.exports = function(grunt) {
       bin = options.bin;
     }
 
-    var chrome = grunt.util.spawn({
-      cmd: bin,
-      args: ['--headless', '--remote-debugging-port=' + options.port].concat(options.args || [])
-    }, function () {
-      stopped = true;
-      grunt.fatal('Chrome Headless killed unexpectedly');
+    var done = this.async(),
+      chrome = grunt.util.spawn({
+        cmd: bin,
+        args: ['--headless', '--remote-debugging-port=' + options.port].concat(options.args || [])
+      }, function () {
+        stopped = true;
+        grunt.fatal('Chrome Headless killed unexpectedly');
+      });
+
+    chrome.stderr.setEncoding('utf-8');
+    chrome.stderr.on('data', function (data) {
+      if (data.indexOf('DevTools listening on') >= 0) {
+        console.log('done');
+        done();
+      } else {
+        grunt.log.error('Chrome Headless: ' + data);
+      }
     });
 
-  });
+    chrome.stdout.setEncoding('utf-8');
+    chrome.stdout.on('data', function (data) {
+      grunt.log.debug('Chrome Headless: ' + data);
+    });
 
+    process.on('exit', function () {
+      if (!stopped) {
+        chrome.kill();
+        grunt.log.ok('Chrome Headless stopped');
+      }
+    });
+  });
 };
